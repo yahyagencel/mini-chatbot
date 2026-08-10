@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Chatbot</title>
+    <title>Mini Chatbot - Google ile Giriş</title>
+    <!-- Google Sign-In Kütüphanesi -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; box-sizing: border-box; }
-        #login-container { text-align: center; }
-        #chat-container { display: none; display: flex; flex-direction: column; height: 80vh; max-height: 600px; }
-        #messages { flex-grow: 1; border: 1px solid #ddd; overflow-y: scroll; padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #fafafa; text-align: left; }
-        input, button { padding: 10px; margin-top: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background: #0056b3; }
-        .msg { margin-bottom: 8px; line-height: 1.4; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        #chat-container { display: none; width: 400px; height: 500px; flex-direction: column; }
+        #messages { flex-grow: 1; border: 1px solid #ddd; overflow-y: scroll; padding: 10px; margin-bottom: 10px; background: #fafafa; text-align: left; }
+        input, button { padding: 10px; width: 100%; margin-top: 5px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -21,68 +19,50 @@
     <!-- Giriş Ekranı -->
     <div id="login-container" class="card">
         <h2>Mini Chatbot</h2>
-        <p>Sohbete katılmak için bir rumuz yaz:</p>
-        <input type="text" id="username-input" placeholder="Adın veya rumuzun...">
-        <button id="login-btn">Sohbete Katıl</button>
+        <p>Sohbete başlamak için:</p>
+        
+        <!-- Google Giriş Butonu -->
+        <div id="g_id_onload"
+             data-client_id="60287386067-fp674raep5id9q8cokpm5vmgvioibun3.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
     </div>
 
     <!-- Sohbet Ekranı -->
     <div id="chat-container" class="card">
-        <h3 style="margin-top:0; text-align:center;">Mini Chat</h3>
+        <h3>Sohbet Odası</h3>
         <div id="messages"></div>
-        <div style="display: flex; gap: 5px; margin-top: auto;">
-            <input type="text" id="message-input" placeholder="Mesaj yaz..." style="margin-top:0;">
-            <button id="send-btn" style="margin-top:0; width: 80px;">Gönder</button>
-        </div>
+        <input type="text" id="message-input" placeholder="Mesajın...">
+        <button onclick="sendMessage()">Gönder</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let username = "";
+        let userName = "";
 
-        const loginContainer = document.getElementById('login-container');
-        const chatContainer = document.getElementById('chat-container');
-        const usernameInput = document.getElementById('username-input');
-        const loginBtn = document.getElementById('login-btn');
-        const messageInput = document.getElementById('message-input');
-        const sendBtn = document.getElementById('send-btn');
-        const messagesDiv = document.getElementById('messages');
-
-        loginBtn.addEventListener('click', () => {
-            const name = usernameInput.value.trim();
-            if (name) {
-                username = name;
-                loginContainer.style.display = 'none';
-                chatContainer.style.display = 'flex';
-            } else {
-                alert('Lütfen geçerli bir rumuz gir!');
-            }
-        });
-
-        usernameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loginBtn.click();
-        });
-
-        sendBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
+        // Google Giriş Cevabını İşle
+        function handleCredentialResponse(response) {
+            const data = JSON.parse(atob(response.credential.split('.')[1]));
+            userName = data.name; // Google'daki ismini alıyoruz
+            
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('chat-container').style.display = 'flex';
+        }
 
         function sendMessage() {
-            const text = messageInput.value.trim();
-            if (text) {
-                socket.emit('chat message', { user: username, text: text });
-                messageInput.value = '';
+            const input = document.getElementById('message-input');
+            if(input.value) {
+                socket.emit('chat message', { user: userName, text: input.value });
+                input.value = '';
             }
         }
 
         socket.on('chat message', (data) => {
-            const div = document.createElement('div');
-            div.className = 'msg';
-            div.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
-            messagesDiv.appendChild(div);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            const msgDiv = document.getElementById('messages');
+            msgDiv.innerHTML += `<div><strong>${data.user}:</strong> ${data.text}</div>`;
+            msgDiv.scrollTop = msgDiv.scrollHeight;
         });
     </script>
 </body>
