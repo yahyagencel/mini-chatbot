@@ -2,282 +2,87 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mini Chatbot</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #313338;
-            color: #dbdee1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        #header {
-            background-color: #2b2d31;
-            padding: 15px 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffffff;
-            border-bottom: 1px solid #1f2023;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #header span { color: #5865f2; }
-        #user-email-display {
-            font-size: 14px;
-            color: #949ba4;
-            background-color: #1e1f22;
-            padding: 6px 12px;
-            border-radius: 4px;
-        }
-        
-        #login-screen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-        }
-        #login-screen input {
-            padding: 12px;
-            width: 280px;
-            background-color: #1e1f22;
-            border: none;
-            color: white;
-            border-radius: 4px;
-            outline: none;
-        }
-        
-        #chat-area {
-            flex: 1;
-            display: none;
-            flex-direction: column;
-            height: 100%;
-        }
-        #chat-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .message {
-            background-color: #2b2d31;
-            padding: 10px 15px;
-            border-radius: 8px;
-            max-width: 70%;
-            word-break: break-all;
-        }
-        .message strong { color: #5865f2; }
-        
-        /* Yazıyor Göstergesi Alanı */
-        #typing-indicator {
-            height: 22px;
-            padding: 0 20px;
-            color: #949ba4;
-            font-size: 13px;
-            font-style: italic;
-            background-color: #313338;
-        }
-
-        #emoji-bar {
-            background-color: #2b2d31;
-            padding: 0 20px 10px 20px;
-            display: flex;
-            gap: 8px;
-        }
-        .emoji-btn {
-            background-color: #1e1f22;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .emoji-btn:hover { background-color: #35373c; }
-
-        #form {
-            display: flex;
-            padding: 0 20px 20px 20px;
-            background-color: #2b2d31;
-            gap: 10px;
-        }
-        #username-input {
-            width: 150px;
-            padding: 10px;
-            background-color: #1e1f22;
-            border: none;
-            color: white;
-            border-radius: 4px;
-            outline: none;
-        }
-        #input {
-            flex: 1;
-            padding: 10px;
-            background-color: #1e1f22;
-            border: none;
-            color: white;
-            border-radius: 4px;
-            outline: none;
-        }
-        button[type="submit"] {
-            background-color: #5865f2;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        button[type="submit"]:hover { background-color: #4752c4; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; box-sizing: border-box; }
+        #login-container { text-align: center; }
+        #chat-container { display: none; display: flex; flex-direction: column; height: 80vh; max-height: 600px; }
+        #messages { flex-grow: 1; border: 1px solid #ddd; overflow-y: scroll; padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #fafafa; text-align: left; }
+        input, button { padding: 10px; margin-top: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .msg { margin-bottom: 8px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
-    <div id="header">
-        <div>💬 <span>Mini Chatbot</span> - Sohbet Odası</div>
-        <div id="user-email-display"></div>
-    </div>
-
     <!-- Giriş Ekranı -->
-    <div id="login-screen">
-        <h2>Sisteme Kayıt Olmak İçin Gmail'ini Yaz</h2>
-        <input type="email" id="email-input" placeholder="ornek@gmail.com" required />
-        <button id="login-btn">Devam Et</button>
+    <div id="login-container" class="card">
+        <h2>Mini Chatbot</h2>
+        <p>Sohbete katılmak için bir rumuz yaz:</p>
+        <input type="text" id="username-input" placeholder="Adın veya rumuzun...">
+        <button id="login-btn">Sohbete Katıl</button>
     </div>
 
     <!-- Sohbet Ekranı -->
-    <div id="chat-area">
-        <div id="chat-container"></div>
-        
-        <!-- Yazıyor Bildirimi -->
-        <div id="typing-indicator"></div>
-
-        <div id="emoji-bar">
-            <button type="button" class="emoji-btn" onclick="addEmoji('😊')">😊</button>
-            <button type="button" class="emoji-btn" onclick="addEmoji('😂')">😂</button>
-            <button type="button" class="emoji-btn" onclick="addEmoji('❤️')">❤️</button>
-            <button type="button" class="emoji-btn" onclick="addEmoji('👍')">👍</button>
-            <button type="button" class="emoji-btn" onclick="addEmoji('🔥')">🔥</button>
-            <button type="button" class="emoji-btn" onclick="addEmoji('🎉')">🎉</button>
-            <button type="button" class="emoji-btn" onclick="addEmoji('🚀')">🚀</button>
-            <button type="button" class="emoji-btn" onclick="addEmoji('😎')">😎</button>
+    <div id="chat-container" class="card">
+        <h3 style="margin-top:0; text-align:center;">Mini Chat</h3>
+        <div id="messages"></div>
+        <div style="display: flex; gap: 5px; margin-top: auto;">
+            <input type="text" id="message-input" placeholder="Mesaj yaz..." style="margin-top:0;">
+            <button id="send-btn" style="margin-top:0; width: 80px;">Gönder</button>
         </div>
-
-        <form id="form">
-            <input id="username-input" autocomplete="off" placeholder="İsmin / Kullanıcı Adın" required />
-            <input id="input" autocomplete="off" placeholder="Mesaj yaz..." required />
-            <button type="submit">Gönder</button>
-        </form>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let userEmail = localStorage.getItem('mini_chat_email');
-        let savedUsername = localStorage.getItem('mini_chat_username');
+        let username = "";
 
-        const loginScreen = document.getElementById('login-screen');
-        const chatArea = document.getElementById('chat-area');
-        const emailInput = document.getElementById('email-input');
-        const loginBtn = document.getElementById('login-btn');
-        const userEmailDisplay = document.getElementById('user-email-display');
-        
-        const form = document.getElementById('form');
-        const usernameInput = document.getElementById('username-input');
-        const input = document.getElementById('input');
+        const loginContainer = document.getElementById('login-container');
         const chatContainer = document.getElementById('chat-container');
-        const typingIndicator = document.getElementById('typing-indicator');
-
-        if (userEmail) {
-            loginScreen.style.display = 'none';
-            chatArea.style.display = 'flex';
-            userEmailDisplay.innerText = `📧 ${userEmail}`;
-        }
-
-        if (savedUsername) {
-            usernameInput.value = savedUsername;
-        }
+        const usernameInput = document.getElementById('username-input');
+        const loginBtn = document.getElementById('login-btn');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const messagesDiv = document.getElementById('messages');
 
         loginBtn.addEventListener('click', () => {
-            const emailVal = emailInput.value.trim();
-            if (emailVal && emailVal.includes('@')) {
-                localStorage.setItem('mini_chat_email', emailVal);
-                userEmail = emailVal;
-                loginScreen.style.display = 'none';
-                chatArea.style.display = 'flex';
-                userEmailDisplay.innerText = `📧 ${userEmail}`;
+            const name = usernameInput.value.trim();
+            if (name) {
+                username = name;
+                loginContainer.style.display = 'none';
+                chatContainer.style.display = 'flex';
             } else {
-                alert('Lütfen geçerli bir Gmail adresi gir!');
+                alert('Lütfen geçerli bir rumuz gir!');
             }
         });
 
-        function addEmoji(emoji) {
-            input.value += emoji;
-            input.focus();
+        usernameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text) {
+                socket.emit('chat message', { user: username, text: text });
+                messageInput.value = '';
+            }
         }
 
-        // Yazıyor... algılama mantığı
-        let typingTimeout;
-        input.addEventListener('input', () => {
-            const usernameVal = usernameInput.value.trim();
-            if (usernameVal) {
-                socket.emit('typing', { username: usernameVal });
-                
-                clearTimeout(typingTimeout);
-                typingTimeout = setTimeout(() => {
-                    socket.emit('stop typing', { username: usernameVal });
-                }, 1500);
-            }
-        });
-
-        socket.on('typing', (data) => {
-            typingIndicator.innerText = `${data.username} yazıyor...`;
-        });
-
-        socket.on('stop typing', () => {
-            typingIndicator.innerText = '';
-        });
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const textVal = input.value.trim();
-            const usernameVal = usernameInput.value.trim();
-
-            if (textVal && usernameVal && userEmail) {
-                localStorage.setItem('mini_chat_username', usernameVal);
-                socket.emit('stop typing', { username: usernameVal });
-
-                socket.emit('chat message', {
-                    email: userEmail,
-                    username: usernameVal,
-                    text: textVal
-                });
-                input.value = '';
-            }
-        });
-
-        socket.on('load history', function(messages) {
-            chatContainer.innerHTML = '';
-            messages.forEach(data => {
-                const item = document.createElement('div');
-                item.className = 'message';
-                item.innerHTML = `<strong>${data.username}:</strong> ${data.text}`;
-                chatContainer.appendChild(item);
-            });
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        });
-
-        socket.on('chat message', function(data) {
-            const item = document.createElement('div');
-            item.className = 'message';
-            item.innerHTML = `<strong>${data.username}:</strong> ${data.text}`;
-            chatContainer.appendChild(item);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+        socket.on('chat message', (data) => {
+            const div = document.createElement('div');
+            div.className = 'msg';
+            div.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
     </script>
 </body>
