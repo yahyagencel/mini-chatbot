@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>YM Software Group - Live Chat</title>
     
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
@@ -21,6 +21,7 @@
             overflow: hidden;
         }
 
+        /* Zorunlu Giriş Ekranı (Kilit Perdesi) */
         #auth-overlay {
             position: fixed;
             top: 0;
@@ -63,7 +64,7 @@
         }
 
         #app-container {
-            display: none;
+            display: none; /* Giriş yapılana kadar tamamen gizli */
             width: 100%;
             height: 100%;
             flex-direction: column;
@@ -152,11 +153,13 @@
 </head>
 <body>
 
+    <!-- Giriş Yapılmadıysa Çıkacak Zorunlu Ekran -->
     <div id="auth-overlay">
         <h2>YM Software Group - Erişim İçin Giriş Yapın</h2>
         <button id="login-btn" class="big-login-btn" onclick="googleGiris()">Google ile Giriş Yap</button>
     </div>
 
+    <!-- Giriş Yapılınca Açılacak Ana Sohbet Ekranı -->
     <div id="app-container">
         <div id="header">
             <h1>YM Software Group Chat</h1>
@@ -173,13 +176,13 @@
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyD03an0JwxuyM6B14_hSjllpgJD0SXR9U",
+            apiKey: "AIzaSyD03an0jwwuyW6B14_hSjllpgJD0SXR9U",
             authDomain: "mini-chatbot2.firebaseapp.com",
             projectId: "mini-chatbot2",
             storageBucket: "mini-chatbot2.firebasestorage.app",
             messagingSenderId: "841342705131",
-            appId: "1:841342705131:web:4f3aaab9896c/a968d0dae",
-            measurementId: "G-ZW1TN400H"
+            appId: "1:841342705131:web:4f3aaab909567a968d0dae",
+            measurementId: "G-ZW1TNM480H"
         };
 
         if (!firebase.apps.length) {
@@ -191,6 +194,7 @@
         const userInfo = document.getElementById("user-info");
         const loginBtn = document.getElementById("login-btn");
 
+        // Oturum durumunu sürekli takip et (Zorunlu Giriş Kontrolü)
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 authOverlay.style.display = "none";
