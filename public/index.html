@@ -137,16 +137,19 @@
             firebase.initializeApp(firebaseConfig);
         }
 
+        // Giriş yönlendirmesi dönüşünü yakala
+        firebase.auth().getRedirectResult()
+            .then((result) => {
+                if (result.user) {
+                    alert("Giriş başarılı, hoş geldin " + result.user.displayName);
+                }
+            }).catch((error) => {
+                console.error("Giriş hatası:", error);
+            });
+
         function googleGiris() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider)
-                .then((result) => {
-                    alert("Giriş başarılı, hoş geldin " + result.user.displayName);
-                })
-                .catch((error) => {
-                    alert("Giriş başarısız: " + error.message);
-                    console.error(error);
-                });
+            firebase.auth().signInWithRedirect(provider);
         }
 
         const inputField = document.getElementById("mesaj-kutusu");
