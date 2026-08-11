@@ -21,7 +21,6 @@
             overflow: hidden;
         }
 
-        /* Zorunlu Giriş Ekranı (Kilit Perdesi) */
         #auth-overlay {
             position: fixed;
             top: 0;
@@ -58,8 +57,13 @@
             background: #357ae8;
         }
 
+        .big-login-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
         #app-container {
-            display: none; /* Giriş yapılana kadar tamamen gizli */
+            display: none;
             width: 100%;
             height: 100%;
             flex-direction: column;
@@ -148,13 +152,11 @@
 </head>
 <body>
 
-    <!-- Giriş Yapılmadıysa Çıkacak Zorunlu Ekran -->
     <div id="auth-overlay">
         <h2>YM Software Group - Erişim İçin Giriş Yapın</h2>
-        <button class="big-login-btn" onclick="googleGiris()">Google ile Giriş Yap</button>
+        <button id="login-btn" class="big-login-btn" onclick="googleGiris()">Google ile Giriş Yap</button>
     </div>
 
-    <!-- Giriş Yapılınca Açılacak Ana Sohbet Ekranı -->
     <div id="app-container">
         <div id="header">
             <h1>YM Software Group Chat</h1>
@@ -187,26 +189,31 @@
         const authOverlay = document.getElementById("auth-overlay");
         const appContainer = document.getElementById("app-container");
         const userInfo = document.getElementById("user-info");
+        const loginBtn = document.getElementById("login-btn");
 
-        // Oturum durumunu sürekli takip et (Zorunlu Giriş Kontrolü)
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                // Giriş yapıldıysa perdeyi kaldır, uygulamayı göster
                 authOverlay.style.display = "none";
                 appContainer.style.display = "flex";
                 userInfo.textContent = user.displayName;
             } else {
-                // Giriş yapılmadıysa siteyi kilitle ve giriş ekranını göster
                 authOverlay.style.display = "flex";
                 appContainer.style.display = "none";
+                loginBtn.disabled = false;
+                loginBtn.textContent = "Google ile Giriş Yap";
             }
         });
 
         function googleGiris() {
+            loginBtn.disabled = true;
+            loginBtn.textContent = "Giriş yapılıyor...";
+            
             const provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithPopup(provider).catch((error) => {
                 alert("Giriş başarısız: " + error.message);
                 console.error(error);
+                loginBtn.disabled = false;
+                loginBtn.textContent = "Google ile Giriş Yap";
             });
         }
 
