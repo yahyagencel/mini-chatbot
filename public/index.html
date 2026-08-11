@@ -2,13 +2,18 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>YM Software Group Chat</title>
+    <title>YM Software Group - Live Chat</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
     <style>
-        /* Arka planı garantiye aldık */
+        /* Modern Gamer / Developer Koyu Teması */
         body {
             background-color: #121212 !important; 
             color: #e0e0e0;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -22,6 +27,30 @@
             padding: 20px;
             text-align: center;
             border-bottom: 2px solid #00f2ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        #header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #00f2ff;
+        }
+
+        #login-btn {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #login-btn:hover {
+            background: #357ae8;
         }
 
         #chat-window {
@@ -33,13 +62,14 @@
             background: #1a1a1a;
             padding: 15px;
             border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
 
-        /* Mesajların ekranda şık görünmesi için */
         .mesaj {
             padding: 8px;
-            border-bottom: 1px solid #333;
-            color: #00ff66; /* Mesajlar yeşil aksanlı olsun */
+            border-bottom: 1px solid #222;
+            color: #00ff66; /* Minecraft Yeşili vurgu */
+            font-family: monospace;
         }
 
         .input-area {
@@ -47,6 +77,7 @@
             width: 80%;
             display: flex;
             gap: 10px;
+            padding-bottom: 20px;
         }
 
         input {
@@ -56,36 +87,72 @@
             color: white;
             border: 1px solid #444;
             border-radius: 4px;
+            outline: none;
         }
 
-        button {
-            padding: 10px 20px;
+        input:focus {
+            border-color: #00f2ff;
+        }
+
+        button.gonder-btn {
+            padding: 10px 25px;
             background: #00f2ff;
+            color: #121212;
             border: none;
             cursor: pointer;
             font-weight: bold;
             border-radius: 4px;
+        }
+
+        button.gonder-btn:hover {
+            background: #00c4d1;
         }
     </style>
 </head>
 <body>
 
     <div id="header">
-        <h1>YM Software Group - Live Chat</h1>
+        <h1>YM Software Group Chat</h1>
+        <button id="login-btn" onclick="googleGiris()">Google ile Giriş Yap</button>
     </div>
 
     <div id="chat-window"></div>
 
     <div class="input-area">
         <input type="text" id="mesaj-kutusu" placeholder="Mesajını yaz ve Enter'a bas...">
-        <button onclick="mesajGonder()">Gönder</button>
+        <button class="gonder-btn" onclick="mesajGonder()">Gönder</button>
     </div>
 
     <script>
+        // Firebase ve Google Client ID Entegrasyonu
+        const firebaseConfig = {
+            // Eğer tam proje config verilerin varsa buraya ekleyebilirsin
+        };
+        
+        // Google Client ID Tanımı: 60287386067-fp674raep5id9q8cokpm5vmgvioibun3.apps.googleusercontent.com
+        const googleClientId = "60287386067-fp674raep5id9q8cokpm5vmgvioibun3.apps.googleusercontent.com";
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // Google Giriş Fonksiyonu
+        function googleGiris() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    const user = result.user;
+                    alert("Giriş başarılı, hoş geldin " + user.displayName);
+                })
+                .catch((error) => {
+                    console.error("Giriş hatası:", error);
+                });
+        }
+
+        // Enter Tuşu ve Mesaj Gönderme Mantığı
         const inputField = document.getElementById("mesaj-kutusu");
         const chatWindow = document.getElementById("chat-window");
 
-        // 1. ENTER TUŞU ÖZELLİĞİ
         inputField.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -93,21 +160,15 @@
             }
         });
 
-        // 2. MESAJ GÖNDERME VE EKRANA YAZDIRMA
         function mesajGonder() {
-            if (inputField.value.trim() !== "") {
-                // Yeni bir div oluştur
+            const mesajMetni = inputField.value.trim();
+            if (mesajMetni !== "") {
                 const yeniMesaj = document.createElement("div");
                 yeniMesaj.className = "mesaj";
-                yeniMesaj.textContent = "Sen: " + inputField.value;
+                yeniMesaj.textContent = "Sen: " + mesajMetni;
                 
-                // Mesajı pencereye ekle
                 chatWindow.appendChild(yeniMesaj);
-                
-                // Pencereyi en aşağı kaydır
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-                
-                // Kutuyu temizle
                 inputField.value = "";
             }
         }
