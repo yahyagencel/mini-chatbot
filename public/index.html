@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <style>
-        /* Modern Gamer / Developer Koyu Teması */
         body {
             background-color: #121212 !important; 
             color: #e0e0e0;
@@ -24,7 +23,7 @@
         #header {
             background: #1f1f1f;
             width: 100%;
-            padding: 20px;
+            padding: 15px 30px;
             text-align: center;
             border-bottom: 2px solid #00f2ff;
             display: flex;
@@ -35,7 +34,7 @@
 
         #header h1 {
             margin: 0;
-            font-size: 22px;
+            font-size: 20px;
             color: #00f2ff;
         }
 
@@ -43,7 +42,7 @@
             background: #4285F4;
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
@@ -68,7 +67,7 @@
         .mesaj {
             padding: 8px;
             border-bottom: 1px solid #222;
-            color: #00ff66; /* Minecraft Yeşili vurgu */
+            color: #00ff66;
             font-family: monospace;
         }
 
@@ -124,32 +123,26 @@
     </div>
 
     <script>
-        // Firebase ve Google Client ID Entegrasyonu
         const firebaseConfig = {
-            // Eğer tam proje config verilerin varsa buraya ekleyebilirsin
+            // Firebase config bilgilerin buraya gelecek
         };
-        
-        // Google Client ID Tanımı: 60287386067-fp674raep5id9q8cokpm5vmgvioibun3.apps.googleusercontent.com
-        const googleClientId = "60287386067-fp674raep5id9q8cokpm5vmgvioibun3.apps.googleusercontent.com";
 
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
 
-        // Google Giriş Fonksiyonu
         function googleGiris() {
             const provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithPopup(provider)
                 .then((result) => {
-                    const user = result.user;
-                    alert("Giriş başarılı, hoş geldin " + user.displayName);
+                    alert("Giriş başarılı, hoş geldin " + result.user.displayName);
                 })
                 .catch((error) => {
-                    console.error("Giriş hatası:", error);
+                    alert("Giriş başarısız: " + error.message);
+                    console.error(error);
                 });
         }
 
-        // Enter Tuşu ve Mesaj Gönderme Mantığı
         const inputField = document.getElementById("mesaj-kutusu");
         const chatWindow = document.getElementById("chat-window");
 
@@ -166,7 +159,6 @@
                 const yeniMesaj = document.createElement("div");
                 yeniMesaj.className = "mesaj";
                 yeniMesaj.textContent = "Sen: " + mesajMetni;
-                
                 chatWindow.appendChild(yeniMesaj);
                 chatWindow.scrollTop = chatWindow.scrollHeight;
                 inputField.value = "";
