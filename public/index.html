@@ -1,31 +1,27 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+    <meta charset="UTF-8">
+    <title>YM Software Group Chat</title>
     <style>
-        /* Modern Dark Gaming Teması */
+        /* Arka planı garantiye aldık */
         body {
-            background-color: #121212; /* Derin Koyu Gri */
+            background-color: #121212 !important; 
             color: #e0e0e0;
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            height: 100vh;
         }
 
         #header {
             background: #1f1f1f;
             width: 100%;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
-            border-bottom: 2px solid #00f2ff; /* Neon Mavi (Teknoloji) */
-        }
-
-        /* YM Software Group Özel Başlığı */
-        .status-badge {
-            font-size: 12px;
-            color: #00ff66; /* Minecraft Yeşili */
-            margin-top: 5px;
+            border-bottom: 2px solid #00f2ff;
         }
 
         #chat-window {
@@ -35,15 +31,31 @@
             margin-top: 20px;
             overflow-y: scroll;
             background: #1a1a1a;
-            padding: 10px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        /* Mesajların ekranda şık görünmesi için */
+        .mesaj {
+            padding: 8px;
+            border-bottom: 1px solid #333;
+            color: #00ff66; /* Mesajlar yeşil aksanlı olsun */
+        }
+
+        .input-area {
+            margin-top: 15px;
+            width: 80%;
+            display: flex;
+            gap: 10px;
         }
 
         input {
-            width: 70%;
-            padding: 10px;
+            flex-grow: 1;
+            padding: 12px;
             background: #222;
             color: white;
             border: 1px solid #444;
+            border-radius: 4px;
         }
 
         button {
@@ -52,6 +64,7 @@
             border: none;
             cursor: pointer;
             font-weight: bold;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -59,31 +72,44 @@
 
     <div id="header">
         <h1>YM Software Group - Live Chat</h1>
-        <div class="status-badge">● Sky Factory Server: Online</div>
     </div>
 
     <div id="chat-window"></div>
 
-    <div style="margin-top: 10px;">
-        <input type="text" id="mesaj-kutusu" placeholder="Mesajını yaz...">
+    <div class="input-area">
+        <input type="text" id="mesaj-kutusu" placeholder="Mesajını yaz ve Enter'a bas...">
         <button onclick="mesajGonder()">Gönder</button>
     </div>
 
     <script>
         const inputField = document.getElementById("mesaj-kutusu");
+        const chatWindow = document.getElementById("chat-window");
 
         // 1. ENTER TUŞU ÖZELLİĞİ
         inputField.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
-                event.preventDefault(); // Sayfa yenilenmesini engelle
-                mesajGonder(); // Gönder fonksiyonunu tetikle
+                event.preventDefault();
+                mesajGonder();
             }
         });
 
+        // 2. MESAJ GÖNDERME VE EKRANA YAZDIRMA
         function mesajGonder() {
-            // Buraya kendi gönderim mantığını ekle
-            console.log("Mesaj gönderildi: " + inputField.value);
-            inputField.value = ""; // Kutuyu temizle
+            if (inputField.value.trim() !== "") {
+                // Yeni bir div oluştur
+                const yeniMesaj = document.createElement("div");
+                yeniMesaj.className = "mesaj";
+                yeniMesaj.textContent = "Sen: " + inputField.value;
+                
+                // Mesajı pencereye ekle
+                chatWindow.appendChild(yeniMesaj);
+                
+                // Pencereyi en aşağı kaydır
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                
+                // Kutuyu temizle
+                inputField.value = "";
+            }
         }
     </script>
 </body>
