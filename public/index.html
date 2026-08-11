@@ -18,6 +18,52 @@
             flex-direction: column;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Zorunlu Giriş Ekranı (Kilit Perdesi) */
+        #auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #121212;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #auth-overlay h2 {
+            color: #00f2ff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .big-login-btn {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .big-login-btn:hover {
+            background: #357ae8;
+        }
+
+        #app-container {
+            display: none; /* Giriş yapılana kadar tamamen gizli */
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
         }
 
         #header {
@@ -38,18 +84,10 @@
             color: #00f2ff;
         }
 
-        #login-btn {
-            background: #4285F4;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
+        #user-info {
+            color: #00ff66;
+            font-size: 14px;
             font-weight: bold;
-        }
-
-        #login-btn:hover {
-            background: #357ae8;
         }
 
         #chat-window {
@@ -110,16 +148,25 @@
 </head>
 <body>
 
-    <div id="header">
-        <h1>YM Software Group Chat</h1>
-        <button id="login-btn" onclick="googleGiris()">Google ile Giriş Yap</button>
+    <!-- Giriş Yapılmadıysa Çıkacak Zorunlu Ekran -->
+    <div id="auth-overlay">
+        <h2>YM Software Group - Erişim İçin Giriş Yapın</h2>
+        <button class="big-login-btn" onclick="googleGiris()">Google ile Giriş Yap</button>
     </div>
 
-    <div id="chat-window"></div>
+    <!-- Giriş Yapılınca Açılacak Ana Sohbet Ekranı -->
+    <div id="app-container">
+        <div id="header">
+            <h1>YM Software Group Chat</h1>
+            <div id="user-info"></div>
+        </div>
 
-    <div class="input-area">
-        <input type="text" id="mesaj-kutusu" placeholder="Mesajını yaz ve Enter'a bas...">
-        <button class="gonder-btn" onclick="mesajGonder()">Gönder</button>
+        <div id="chat-window"></div>
+
+        <div class="input-area">
+            <input type="text" id="mesaj-kutusu" placeholder="Mesajını yaz ve Enter'a bas...">
+            <button class="gonder-btn" onclick="mesajGonder()">Gönder</button>
+        </div>
     </div>
 
     <script>
@@ -137,19 +184,30 @@
             firebase.initializeApp(firebaseConfig);
         }
 
-        // Giriş yönlendirmesi dönüşünü yakala
-        firebase.auth().getRedirectResult()
-            .then((result) => {
-                if (result.user) {
-                    alert("Giriş başarılı, hoş geldin " + result.user.displayName);
-                }
-            }).catch((error) => {
-                console.error("Giriş hatası:", error);
-            });
+        const authOverlay = document.getElementById("auth-overlay");
+        const appContainer = document.getElementById("app-container");
+        const userInfo = document.getElementById("user-info");
+
+        // Oturum durumunu sürekli takip et (Zorunlu Giriş Kontrolü)
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // Giriş yapıldıysa perdeyi kaldır, uygulamayı göster
+                authOverlay.style.display = "none";
+                appContainer.style.display = "flex";
+                userInfo.textContent = user.displayName;
+            } else {
+                // Giriş yapılmadıysa siteyi kilitle ve giriş ekranını göster
+                authOverlay.style.display = "flex";
+                appContainer.style.display = "none";
+            }
+        });
 
         function googleGiris() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithRedirect(provider);
+            firebase.auth().signInWithPopup(provider).catch((error) => {
+                alert("Giriş başarısız: " + error.message);
+                console.error(error);
+            });
         }
 
         const inputField = document.getElementById("mesaj-kutusu");
@@ -165,9 +223,12 @@
         function mesajGonder() {
             const mesajMetni = inputField.value.trim();
             if (mesajMetni !== "") {
+                const user = firebase.auth().currentUser;
+                const isim = user ? user.displayName : "Misafir";
+                
                 const yeniMesaj = document.createElement("div");
                 yeniMesaj.className = "mesaj";
-                yeniMesaj.textContent = "Sen: " + mesajMetni;
+                yeniMesaj.textContent = isim + ": " + mesajMetni;
                 chatWindow.appendChild(yeniMesaj);
                 chatWindow.scrollTop = chatWindow.scrollHeight;
                 inputField.value = "";
